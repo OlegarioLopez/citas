@@ -5,13 +5,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.Button
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.ole.citastatto.data.Appointment
@@ -20,8 +15,8 @@ import com.ole.citastatto.ui.theme.CitasTattoTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 
 class MainActivity : ComponentActivity() {
 
@@ -38,7 +33,7 @@ class MainActivity : ComponentActivity() {
 
      private fun saveAppointment(appointment: Appointment) = CoroutineScope(Dispatchers.IO).launch {
         try {
-            appointmentCollectionRef.add(appointment)
+            appointmentCollectionRef.add(appointment).await()
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     this@MainActivity,
