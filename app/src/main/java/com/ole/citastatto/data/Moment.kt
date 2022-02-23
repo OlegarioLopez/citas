@@ -4,5 +4,6 @@ package com.ole.citastatto.data
 data class Moment(
     val pos: Int, // Position, could be the first Moment of the day, the second...
     val timeIni: Time,
-    val timeFin: Time
+    val timeFin: Time,
+    val available: Boolean = true
 )
