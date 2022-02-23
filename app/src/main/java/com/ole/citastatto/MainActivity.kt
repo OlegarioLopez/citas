@@ -9,8 +9,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.ole.citastatto.data.Appointment
-import com.ole.citastatto.data.Time
+import com.ole.citastatto.data.Month
 import com.ole.citastatto.ui.theme.CitasTattoTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +30,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-     private fun saveAppointment(appointment: Appointment) = CoroutineScope(Dispatchers.IO).launch {
+     private fun saveAppointment(appointment: Month) = CoroutineScope(Dispatchers.IO).launch {
         try {
             appointmentCollectionRef.add(appointment).await()
             withContext(Dispatchers.Main) {
@@ -52,10 +51,8 @@ class MainActivity : ComponentActivity() {
     fun ButtonAppointment() {
         Button(
             onClick = {
-                val timeFin= Time(13,0)
-                val timeIni=Time(12,5)
-                val appointment = Appointment(timeIni, timeFin)
-                saveAppointment(appointment)
+                val month=Month(31,"Marzo",3,2)
+                saveAppointment(month)
             },
         ) {
             Text(text = "Botón")
