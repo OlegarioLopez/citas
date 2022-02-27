@@ -1,10 +1,10 @@
 package com.ole.citastatto.data
 
 data class Month(
-    val daysNumber:Int,
-    val name: String,
-    val pos: Int ,   // Position, could be the first Month of the year, the second...
-    val firstDay: Int // 1 means the month begin in a monday, 2 in a tuesday...
+    val daysNumber:Int =-1,
+    val name: String = "",
+    val pos: Int = -1,   // Position, could be the first Month of the year, the second...
+    val firstDay: Int = -1 // 1 means the month begin in a monday, 2 in a tuesday...
 )
 {
 

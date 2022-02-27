@@ -2,7 +2,7 @@ package com.ole.citastatto.data
 
 // A moment represent a period of 15 minutes, there is a different amount of moments depending on the working hours
 data class Day(
-    val weekDay: Int // 1 is monday, 2 tuesday...
+    val weekDay: Int = -1 // 1 is monday, 2 tuesday...
 ) {
     val workMorning = listOf(10, 11, 12, 13) //TODO extraer el horario laboral a otra clase que se inyecte para no hardcodearlo
     val workEvening = listOf(17, 18, 19)   //TODO extraer el horario laboral a otra clase que se inyecte para no hardcodearlo
@@ -10,11 +10,11 @@ data class Day(
     var stripes: MutableList<Stripe> = mutableListOf() // TODO revisar la inicialización del parámetro duration de la Stripe
     val moments: MutableList<Moment> = fillMoments()
 
-    init {
+    /*init {
        if(this.weekDay!=6 && this.weekDay!=7){
             stripes =  mutableListOf(Stripe(1,duration= moments.size*15,moments.first(),moments.last()))
         }
-    }
+    }*/
 
     private fun fillMoments(): MutableList<Moment> {
         val moments: MutableList<Moment> = mutableListOf()

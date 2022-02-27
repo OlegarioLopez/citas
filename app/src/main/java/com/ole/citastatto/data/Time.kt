@@ -1,4 +1,4 @@
 package com.ole.citastatto.data
 
-data class Time(val hour: Int, val min: Int ) {
+data class Time(val hour: Int = -1, val min: Int = -1 ){
 }
