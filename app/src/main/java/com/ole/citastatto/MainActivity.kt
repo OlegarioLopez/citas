@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import com.ole.citastatto.ui.animations.LottieExample
 import com.ole.citastatto.ui.theme.CitasTattoTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,9 +21,10 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CitasTattoTheme {
-                Column() {
+                Column {
                     ButonRetrieveData()
                     Text(text = montViewModel.name.value?:" fallo al cargar")
+                    LottieExample()
                 }
             }
         }
