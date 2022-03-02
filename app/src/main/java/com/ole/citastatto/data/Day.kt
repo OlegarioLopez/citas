@@ -9,6 +9,7 @@ data class Day(
     private var momentPos: Int = 1
     var stripes: MutableList<Stripe> = mutableListOf() // TODO revisar la inicialización del parámetro duration de la Stripe
     val moments: MutableList<Moment> = fillMoments()
+    val dayInMonth: Int = -1
 
     /*init {
        if(this.weekDay!=6 && this.weekDay!=7){
@@ -18,7 +19,7 @@ data class Day(
 
     private fun fillMoments(): MutableList<Moment> {
         val moments: MutableList<Moment> = mutableListOf()
-        if(this.weekDay == 6 || this.weekDay==7)  return mutableListOf()
+        if (this.weekDay == 6 || this.weekDay == 7) return mutableListOf()
         for (i in workMorning) {
             for (e in 0..30 step 15) {
                 moments.add(Moment(momentPos, Time(i, e), Time(i, e + 15)))
@@ -39,6 +40,28 @@ data class Day(
         return moments
     }
 
+    private fun updateStripes(): MutableList<Stripe> { //TODO test this functionality
 
+        var auxStripe = Stripe()
+        var counter = 1
+        var Stripes: MutableList<Stripe> = mutableListOf()
 
+        for (moment in moments) {
+            if (moment.available) {
+                if (auxStripe.initialized) {
+                    auxStripe.momentFin = moment
+                } else {
+                    auxStripe.momentIni = moment
+                }
+            } else {
+                if (auxStripe.initialized) {
+                    auxStripe.pos = counter
+                    Stripes.add(auxStripe)
+                    counter++
+                    auxStripe = Stripe()
+                }
+            }
+        }
+        return Stripes
+    }
 }
