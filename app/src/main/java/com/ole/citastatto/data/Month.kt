@@ -1,8 +1,8 @@
 package com.ole.citastatto.data
 
-import com.ole.citastatto.data.Day
-
 data class Month(
+    var monthNumber: Int=0,
+    var year: Int = 0,
     var monthName: String = "",
     var days: MutableList<Day> = mutableListOf()
 )
