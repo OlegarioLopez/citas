@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.ole.citastatto"
-        minSdk 23
+        minSdk 26
         targetSdk 31
         versionCode 1
         versionName "1.0"
@@ -29,6 +29,7 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+
     }
     kotlinOptions {
         jvmTarget = '1.8'
@@ -70,5 +71,6 @@ dependencies {
 
     //Lottie
     implementation "com.airbnb.android:lottie-compose:4.1.0"
+    implementation "com.android.tools:desugar_jdk_libs_configuration:1.1.5"
 
 }

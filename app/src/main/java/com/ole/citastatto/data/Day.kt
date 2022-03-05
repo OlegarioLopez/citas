@@ -1,67 +1,27 @@
 package com.ole.citastatto.data
 
-// A moment represent a period of 15 minutes, there is a different amount of moments depending on the working hours
+import java.time.LocalTime
+
 data class Day(
-    val weekDay: Int = -1 // 1 is monday, 2 tuesday...
-) {
-    val workMorning = listOf(10, 11, 12, 13) //TODO extraer el horario laboral a otra clase que se inyecte para no hardcodearlo
-    val workEvening = listOf(17, 18, 19)   //TODO extraer el horario laboral a otra clase que se inyecte para no hardcodearlo
-    private var momentPos: Int = 1
-    var stripes: MutableList<Stripe> = mutableListOf() // TODO revisar la inicialización del parámetro duration de la Stripe
-    val moments: MutableList<Moment> = fillMoments()
-    val dayInMonth: Int = -1
+    val weekDay: String = "",
+    val dayInMonth: Int = 0,
+    val startMorning: List<Int> = listOf<Int>(0,0),
+    val finishMorning: List<Int> = listOf<Int>(0,0),
+    val startEvening: List<Int> = listOf<Int>(0,0),
+    val finishtEvening: List<Int> = listOf<Int>(0,0),
+    var stripes: MutableList<Stripe> = mutableListOf()
+){
+    private var startMorningTime: LocalTime? = LocalTime.of(0,0)
+    private var finishMorningTime: LocalTime? = LocalTime.of(0,0)
+    private var startEveningTime: LocalTime? = LocalTime.of(0,0)
+    private var finishtEveningTime: LocalTime? = LocalTime.of(0,0)
+   init{
+       startMorningTime=LocalTime.of(startMorning[0],startMorning[1])
+       finishMorningTime=LocalTime.of(finishMorning[0],finishMorning[1])
+       startEveningTime=LocalTime.of(startEvening[0],startEvening[1])
+       finishtEveningTime=LocalTime.of(finishtEvening[0],finishtEvening[1])
 
-    /*init {
-       if(this.weekDay!=6 && this.weekDay!=7){
-            stripes =  mutableListOf(Stripe(1,duration= moments.size*15,moments.first(),moments.last()))
-        }
-    }*/
 
-    private fun fillMoments(): MutableList<Moment> {
-        val moments: MutableList<Moment> = mutableListOf()
-        if (this.weekDay == 6 || this.weekDay == 7) return mutableListOf()
-        for (i in workMorning) {
-            for (e in 0..30 step 15) {
-                moments.add(Moment(momentPos, Time(i, e), Time(i, e + 15)))
-                momentPos++
-            }
-            moments.add(Moment(momentPos, Time(i, 45), Time(i + 1, 0)))
-            momentPos++
-        }
+   }
 
-        for (i in workEvening) {
-            for (e in 0..30 step 15) {
-                moments.add(Moment(momentPos, Time(i, e), Time(i, e + 15)))
-                momentPos++
-            }
-            moments.add(Moment(momentPos, Time(i, 45), Time(i + 1, 0)))
-            momentPos++
-        }
-        return moments
-    }
-
-    private fun updateStripes(): MutableList<Stripe> { //TODO test this functionality
-
-        var auxStripe = Stripe()
-        var counter = 1
-        var Stripes: MutableList<Stripe> = mutableListOf()
-
-        for (moment in moments) {
-            if (moment.available) {
-                if (auxStripe.initialized) {
-                    auxStripe.momentFin = moment
-                } else {
-                    auxStripe.momentIni = moment
-                }
-            } else {
-                if (auxStripe.initialized) {
-                    auxStripe.pos = counter
-                    Stripes.add(auxStripe)
-                    counter++
-                    auxStripe = Stripe()
-                }
-            }
-        }
-        return Stripes
-    }
 }
