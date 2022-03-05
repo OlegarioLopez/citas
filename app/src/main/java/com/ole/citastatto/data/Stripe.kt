@@ -4,7 +4,7 @@ import java.time.Duration
 import java.time.LocalTime
 
 data class Stripe (
-    private var availability: Boolean = true,
+    var availability: Boolean = true,
     var bookedBy: String = "",
     var momentIni: List<Int> = listOf(0,0),
     var momentFin: List<Int> = listOf(0,0),
