@@ -4,7 +4,7 @@ import java.time.LocalTime
 
 data class Day(
     val weekDay: String = "",
-    val dayInMonth: Int = 0,
+    var dayInMonth: Int = 1,
     val startMorning: List<Int> = listOf(0,0),
     val finishMorning: List<Int> = listOf(0,0),
     val startEvening: List<Int> = listOf(0,0),
