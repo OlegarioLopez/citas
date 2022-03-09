@@ -16,8 +16,8 @@ data class Stripe (
         return "De $momentIniTime a $momentFinTime"
     }
 
-    private var momentIniTime: LocalTime? = LocalTime.of(0,0)
-    private var momentFinTime: LocalTime? = LocalTime.of(0,0)
+     var momentIniTime: LocalTime? = LocalTime.of(0,0)
+     var momentFinTime: LocalTime? = LocalTime.of(0,0)
     init {
         momentIniTime = LocalTime.of(momentIni[0],momentIni[1])
         momentFinTime = LocalTime.of(momentFin[0],momentFin[1])
