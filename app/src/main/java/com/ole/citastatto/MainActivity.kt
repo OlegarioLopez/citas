@@ -7,13 +7,17 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ole.citastatto.Screens.MapGoogle
 import com.ole.citastatto.Screens.ShowStripe
 import com.ole.citastatto.data.Day
 import com.ole.citastatto.ui.theme.CitasTattoTheme
+
 
 class MainActivity : ComponentActivity() {
 
@@ -28,9 +32,9 @@ class MainActivity : ComponentActivity() {
                 Column {
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "HomeScreen") {
-                        composable("HomeScreen") { ButonFindStripe(navController) }
+                        composable("HomeScreen") { HomeScreen(navController) }
                         composable("Stripes") { ShowStripe(monthViewModel.daysAvailables.value as MutableList<Day>,monthViewModel) }
-                        /*...*/
+                        composable("map"){MapGoogle()}
                     }
                     //LottieExample()
                 }
@@ -41,14 +45,27 @@ class MainActivity : ComponentActivity() {
 
 
     @Composable
-    fun ButonFindStripe(navController: NavHostController) {
-        Button(onClick = {
-            monthViewModel.retrieveMonths()
-            monthViewModel.retrieveAvailableStripes(50)
-            navController.navigate("Stripes")
-        }) {
-            Text(text = "Cargar datos")
+    fun HomeScreen(navController: NavHostController) {
+        Column(
+            Modifier.fillMaxSize(),
+            verticalArrangement  = Arrangement.Center,
+            horizontalAlignment  = Alignment.CenterHorizontally)
+        {
+            Button(onClick = {
+                monthViewModel.retrieveMonths()
+                monthViewModel.retrieveAvailableStripes(50)
+                navController.navigate("Stripes")
+            }) {
+                Text(text = "Buscar cita")
+            }
+            Button(onClick = {
+
+                navController.navigate("map")
+            }) {
+                Text(text = "¿Dónde estamos?")
+            }
         }
+
     }
 }
 
