@@ -4,6 +4,8 @@ import java.time.Duration
 import java.time.LocalTime
 
 data class Stripe (
+    val month: String = "",
+    val dayInMonth: Int = 0,
     var availability: Boolean = true,
     var bookedBy: String = "",
     var momentIni: List<Int> = listOf(0,0),
