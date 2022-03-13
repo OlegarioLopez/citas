@@ -33,7 +33,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "HomeScreen") {
                         composable("HomeScreen") { HomeScreen(navController) }
-                        composable("Stripes") { ShowStripe(monthViewModel.daysAvailables.value as MutableList<Day>,monthViewModel) }
+                        composable("Stripes") { ShowStripe(monthViewModel) }
                         composable("map"){MapGoogle()}
                     }
                     //LottieExample()
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
         {
             Button(onClick = {
                 monthViewModel.retrieveMonths()
-                monthViewModel.retrieveAvailableStripes(50)
+                monthViewModel.retrieveAvailableStripes(70)
                 navController.navigate("Stripes")
             }) {
                 Text(text = "Buscar cita")
