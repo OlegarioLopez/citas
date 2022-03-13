@@ -30,6 +30,7 @@ class MontViewModel : ViewModel() {
     var daysAvailables: State<List<Day>> = _daysAvailables
 
     private val monthCollectionRef = Firebase.firestore.collection("Months")
+    private val daysCollectionRef = Firebase.firestore.collection("Days").orderBy("dayInMonth")
 
     fun retrieveMonths() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -53,13 +54,11 @@ class MontViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
 
             val auxDaysWithStripe: MutableList<Day> = mutableListOf()
-            val querySnapshot = monthCollectionRef.whereEqualTo("monthName", "APRIL").get().await()
-
+            val querySnapshot = daysCollectionRef.whereEqualTo("month", "APRIL").get().await()
 
             for (document in querySnapshot.documents) {
-                val month = document.toObject<Month>()
-                month?.let {
-                    for (day in month.days) {
+                val day = document.toObject<Day>()
+                if(day != null ) {
 
                         val auxDay = cloneDay(day)
                         if (day.stripes.isEmpty()) {
@@ -89,8 +88,6 @@ class MontViewModel : ViewModel() {
                         if (auxDay.stripes.isNotEmpty()) {
                             auxDaysWithStripe.add(auxDay)
                         }
-
-                    }
                 }
             }
 /*
@@ -115,7 +112,8 @@ class MontViewModel : ViewModel() {
         val e = day.startEvening
         val f = day.finishtEvening
         val g = day.stripes.toMutableList()
-        val result = Day(a, b, c, d, e, f, g)
+        val h = day.month
+        val result = Day(a, b, c, d, e, f, g,h)
         return result
 
     }
