@@ -9,7 +9,6 @@ data class Day(
     val finishMorning: List<Int> = listOf(0,0),
     val startEvening: List<Int> = listOf(0,0),
     val finishtEvening: List<Int> = listOf(0,0),
-    var stripes: MutableList<Stripe> = mutableListOf(),
     val month: String=""
 
 ){
