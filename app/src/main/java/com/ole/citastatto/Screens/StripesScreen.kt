@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ole.citastatto.MontViewModel
 import com.ole.citastatto.data.Day
+import com.ole.citastatto.data.Stripe
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -31,7 +32,7 @@ import java.time.format.FormatStyle
     }
 
     @Composable
-    fun ShowStripe(List: MutableList<Day>,monthViewModel: MontViewModel) {
+    fun ShowStripe(daysList: MutableList<Day>, stripesList: MutableList<Stripe>, monthViewModel: MontViewModel) {
 
         androidx.compose.material.Surface(
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
@@ -39,7 +40,7 @@ import java.time.format.FormatStyle
 
             if(!monthViewModel.someStripe.value) ShowNoStripe()
             Column() {
-                for (day in List) {
+                for (day in daysList) {
                     Row(
                         modifier = Modifier.padding(vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -62,7 +63,7 @@ import java.time.format.FormatStyle
                                 .fillMaxWidth()
                                 .padding(10.dp)
                         ) {
-                            for (stripe in day.stripes) {
+                            for (stripe in stripesList) {
                                 stripe.updateInternals()
                                 OutlinedButton(onClick = { monthViewModel.bookAppointment(stripe,day,monthViewModel.month.value.monthNumber) }) {
                                     Text(text = "$stripe")
