@@ -1,5 +1,6 @@
 package com.ole.citastatto
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -15,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.time.LocalDate
 import java.time.LocalTime
 
 //TODO: Revisar si es mejor hacer el querySnapshot una sola vez para toda la clase y cómo hacerlo
@@ -29,8 +31,12 @@ class MontViewModel : ViewModel() {
     private val _daysAvailables = mutableStateOf<List<Day>>(mutableListOf())
     var daysAvailables: State<List<Day>> = _daysAvailables
 
+    private val _stripesAvailables = mutableStateOf<List<Stripe>>(mutableListOf())
+    var stripesAvailables: State<List<Stripe>> = _stripesAvailables
+
     private val monthCollectionRef = Firebase.firestore.collection("Months")
-    private val daysCollectionRef = Firebase.firestore.collection("Days").orderBy("dayInMonth")
+    private val stripesCollectionOrdered = Firebase.firestore.collection("Stripes").orderBy("dayInMonth").orderBy("momentIni")
+    private val stripesCollectionRef = Firebase.firestore.collection("Stripes")
 
     fun retrieveMonths() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -54,68 +60,61 @@ class MontViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
 
             val auxDaysWithStripe: MutableList<Day> = mutableListOf()
-            val querySnapshot = daysCollectionRef.whereEqualTo("month", "APRIL").get().await()
+            val auxStripesAvailables: MutableList<Stripe> = mutableListOf()
+            val querySnapshot = stripesCollectionOrdered.whereEqualTo("month", "APRIL").get().await()
+            val finalStripesList: MutableList<Stripe> = mutableListOf()
+            val dayStripeLimit = 5
+            var currentNumberStripes = 0
+            var currentDay = 0
+
 
             for (document in querySnapshot.documents) {
-                val day = document.toObject<Day>()
-                if(day != null ) {
 
-                        val auxDay = cloneDay(day)
-                        if (day.stripes.isEmpty()) {
-
-                            continue
-                        }
-                        if (auxDaysWithStripe.size == 3) {
-                            break
-                        }
-
-                        for (strip in day.stripes) {
-
-                            if (auxDay.stripes.size >= 5) {
-                                break
-                            }
-
-                            strip.updateInternals()
-                            // TODO hay que verificar si el Strip no es nulo
-                            if (strip.duration >= durationBook) {
-                                auxDay.stripes.addAll(splitStripe(strip, durationBook))
-                                //TODO Ordenar las stripes por moment Ini sortBy(momentIni[0]) ?
-                                auxDay.stripes.removeAt(0)
-
-
-                            } else auxDay.stripes.removeAt(0)
-                        }
-                        if (auxDay.stripes.isNotEmpty()) {
-                            auxDaysWithStripe.add(auxDay)
-                        }
+                val stripe = document.toObject<Stripe>()
+                stripe?.let {
+                    if (stripe.availability) auxStripesAvailables.add(it)
                 }
             }
-/*
-           TODO terminar la funcion splitStripes para mostrar las citas adecuadamente a los usuario (duración y juntar)
-*/
-            withContext(Dispatchers.Main) {
-                var stripeAvailable = false
-                for (day in auxDaysWithStripe) {
-                    if (day.stripes.isNotEmpty()) stripeAvailable = true
+            auxStripesAvailables.sortBy { "momentIni[0]" }
+            auxStripesAvailables.sortBy { "momentIni[1]" }
+
+            for (stripe in auxStripesAvailables) {
+                stripe.updateInternals()
+                if (stripe.duration < durationBook) continue
+
+                if (currentDay != stripe.dayInMonth) {
+                    auxDaysWithStripe.add(
+                        Day(
+                            dayInMonth = stripe.dayInMonth,
+                            month = stripe.month,
+                            weekDay = LocalDate.of(
+                                month.value.year,
+                                month.value.monthNumber,
+                                stripe.dayInMonth
+                            ).dayOfWeek.toString()
+                        )
+                    )
+                    currentDay = stripe.dayInMonth
+                    currentNumberStripes = 1
                 }
-                if (!stripeAvailable) _someStripe.value = stripeAvailable
+                if (currentNumberStripes < dayStripeLimit) {
+
+                    finalStripesList.addAll(splitStripe(stripe, durationBook))
+
+
+                    currentNumberStripes++ //TODO modoficar con un if( splitstripe().size == 2) currentNumber+=2 else currentNumber++ en caso de que así se quiera
+
+                }
+            }
+
+
+            withContext(Dispatchers.Main) {
+
+                if (finalStripesList.isEmpty()) _someStripe.value = false
                 _daysAvailables.value = auxDaysWithStripe
+                _stripesAvailables.value = finalStripesList
             }
         }
-    }
-
-    private fun cloneDay(day: Day): Day {
-        val a = day.weekDay
-        val b = day.dayInMonth
-        val c = day.startMorning
-        val d = day.finishMorning
-        val e = day.startEvening
-        val f = day.finishtEvening
-        val g = day.stripes.toMutableList()
-        val h = day.month
-        val result = Day(a, b, c, d, e, f, g,h)
-        return result
-
     }
 
     fun splitStripe(Stripe: Stripe, durationBook: Int): MutableList<Stripe> {
@@ -124,11 +123,12 @@ class MontViewModel : ViewModel() {
 
         if (durationBook == Stripe.duration.toInt()) {
             Stripe.availability = false
+            Stripe.splitedFrom = "${Stripe.dayInMonth}${Stripe.momentIni.get(0)}${Stripe.momentIni.get(1)}".toInt()
             splitedStripe.add(Stripe)
             return splitedStripe
         }
 
-        val auxStripe = Stripe.copy()
+        val auxStripe = Stripe.copy( )
         val auxStripe2 = Stripe.copy()
         auxStripe.momentFin = sumTime(
             Stripe.momentIni,
@@ -137,10 +137,14 @@ class MontViewModel : ViewModel() {
         auxStripe.availability = false
         auxStripe.bookedBy = "usuario de prueba"
         auxStripe.updateInternals()
+        auxStripe.splitedFrom = "${Stripe.dayInMonth}${Stripe.momentIni.get(0)}${Stripe.momentIni.get(1)}".toInt()
+
         splitedStripe.add(auxStripe)
         auxStripe2.momentIni = minusTime(Stripe.momentFin, durationBook)
         auxStripe2.availability = false
         auxStripe2.bookedBy = "usuario de prueba"
+        auxStripe2.splitedFrom = "${Stripe.dayInMonth}${Stripe.momentIni.get(0)}${Stripe.momentIni.get(1)}".toInt()
+
         auxStripe2.updateInternals()
         splitedStripe.add(auxStripe2)
 
@@ -164,10 +168,49 @@ class MontViewModel : ViewModel() {
 
     fun bookAppointment(selectedStripe: Stripe, day: Day, monthNumber: Int) {
         CoroutineScope(Dispatchers.IO).launch {
+            var stripeFatherDocuments = stripesCollectionOrdered.whereEqualTo( "month","${selectedStripe.month}" ).whereEqualTo("key",selectedStripe.splitedFrom).get().await()
+            for(stripeFatherDoc in stripeFatherDocuments){
+                var dbstripeFatherDoc = Firebase.firestore.collection("Stripes").document(stripeFatherDoc.id)
+                try {
+                    var stripeFather = stripeFatherDoc.toObject<Stripe>()
 
+                    if(selectedStripe.duration == stripeFather.duration){
+                        selectedStripe.availability = false
+                        selectedStripe.bookedBy = "Usuario de prueba1"
+                        dbstripeFatherDoc.delete()
+                        stripesCollectionRef.add(selectedStripe)
+                    }else{
+                        selectedStripe.availability = false
+                        selectedStripe.bookedBy = "Usuario de prueba1"
+
+                        dbstripeFatherDoc.delete()
+                        Firebase.firestore.collection("Stripes").add(selectedStripe)
+                        if(stripeFather.momentIni == selectedStripe.momentIni){
+
+                            stripeFather.momentIni = sumTime(stripeFather.momentIni,selectedStripe.duration.toInt())
+                            stripeFather.updateInternals()
+                            stripesCollectionRef.add(stripeFather)
+                        }
+                        if(stripeFather.momentFin == selectedStripe.momentFin){
+
+                                stripeFather.momentFin = minusTime(stripeFather.momentFin,selectedStripe.duration.toInt())
+                                stripeFather.updateInternals()
+                                stripesCollectionRef.add(stripeFather)
+
+                    }
+                    }
+                }catch (e: Exception){
+                Log.d("bookappointment","Error en el bookappointment")
+                }
+
+            }
         }
         //withContext(Dispatchers.Main) {
 
 
     }
+
+   /* fun sayHello (){
+        Log.d("Hello" , " Hello")
+    }*/
 }

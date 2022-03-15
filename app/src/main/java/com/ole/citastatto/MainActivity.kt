@@ -15,7 +15,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ole.citastatto.Screens.MapGoogle
 import com.ole.citastatto.Screens.ShowStripe
-import com.ole.citastatto.data.Day
 import com.ole.citastatto.ui.theme.CitasTattoTheme
 
 
