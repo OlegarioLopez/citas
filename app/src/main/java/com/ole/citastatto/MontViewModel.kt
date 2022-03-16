@@ -51,13 +51,12 @@ class MontViewModel : ViewModel() {
                     _month.value = month
                 }
             }
-
         }
     }
 
     fun retrieveAvailableStripes(durationBook: Int) {
 
-        viewModelScope.launch(Dispatchers.IO) {
+            viewModelScope.launch(Dispatchers.IO) {
 
             val auxDaysWithStripe: MutableList<Day> = mutableListOf()
             val auxStripesAvailables: MutableList<Stripe> = mutableListOf()
