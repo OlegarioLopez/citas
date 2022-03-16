@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.ole.citastatto.MontViewModel
 import com.ole.citastatto.data.Day
 import com.ole.citastatto.data.Stripe
@@ -36,7 +37,7 @@ import java.time.format.FormatStyle
     }
 
     @Composable
-    fun ShowStripe( monthViewModel: MontViewModel) {
+    fun ShowStripe(monthViewModel: MontViewModel, navController: NavHostController) {
 
         val daysList = monthViewModel.daysAvailables.value
         val stripesList = monthViewModel.stripesAvailables.value
@@ -78,7 +79,8 @@ import java.time.format.FormatStyle
                                 stripe.updateInternals()
                                 if(stripe.dayInMonth == day.dayInMonth){
                                     OutlinedButton(
-                                        onClick = { monthViewModel.bookAppointment(stripe,day,monthViewModel.month.value.monthNumber) }) {
+                                        onClick = { monthViewModel.bookAppointment(stripe,day,monthViewModel.month.value.monthNumber)
+                                            navController.popBackStack()}) {
                                         Text(text = "$stripe")
                                     }
                                 }
