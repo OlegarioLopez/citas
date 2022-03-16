@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "HomeScreen") {
                         composable("HomeScreen") { HomeScreen(navController) }
-                        composable("Stripes") { ShowStripe(monthViewModel) }
+                        composable("Stripes") { ShowStripe(monthViewModel,navController) }
                         composable("map"){MapGoogle()}
                     }
                     //LottieExample()
