@@ -10,7 +10,7 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.ole.citastatto.data.Day
 import com.ole.citastatto.data.Month
-import com.ole.citastatto.data.Stripe
+import com.ole.citastatto.data.Spot
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,18 +25,18 @@ class MontViewModel : ViewModel() {
     private val _month = mutableStateOf(Month())
     var month: State<Month> = _month
 
-    private val _someStripe = mutableStateOf(true)
-    var someStripe = _someStripe
+    private val _someSpot = mutableStateOf(true)
+    var someSpot = _someSpot
 
     private val _daysAvailables = mutableStateOf<List<Day>>(mutableListOf())
     var daysAvailables: State<List<Day>> = _daysAvailables
 
-    private val _stripesAvailables = mutableStateOf<List<Stripe>>(mutableListOf())
-    var stripesAvailables: State<List<Stripe>> = _stripesAvailables
+    private val _spotsAvailables = mutableStateOf<List<Spot>>(mutableListOf())
+    var spotsAvailables: State<List<Spot>> = _spotsAvailables
 
     private val monthCollectionRef = Firebase.firestore.collection("Months")
-    private val stripesCollectionOrdered = Firebase.firestore.collection("Stripes").orderBy("dayInMonth").orderBy("momentIni")
-    private val stripesCollectionRef = Firebase.firestore.collection("Stripes")
+    private val spotsCollectionOrdered = Firebase.firestore.collection("Spots").orderBy("dayInMonth").orderBy("momentIni")
+    private val spotsCollectionRef = Firebase.firestore.collection("Spots")
 
     fun retrieveMonths() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -54,54 +54,54 @@ class MontViewModel : ViewModel() {
         }
     }
 
-    fun retrieveAvailableStripes(durationBook: Int) {
+    fun retrieveAvailableSpots(durationBook: Int) {
 
             viewModelScope.launch(Dispatchers.IO) {
 
-            val auxDaysWithStripe: MutableList<Day> = mutableListOf()
-            val auxStripesAvailables: MutableList<Stripe> = mutableListOf()
-            val querySnapshot = stripesCollectionOrdered.whereEqualTo("month", "APRIL").get().await()
-            val finalStripesList: MutableList<Stripe> = mutableListOf()
-            val dayStripeLimit = 5
-            var currentNumberStripes = 0
+            val auxDaysWithSpot: MutableList<Day> = mutableListOf()
+            val auxSpotsAvailables: MutableList<Spot> = mutableListOf()
+            val querySnapshot = spotsCollectionOrdered.whereEqualTo("month", "APRIL").get().await()
+            val finalSpotsList: MutableList<Spot> = mutableListOf()
+            val daySpotLimit = 5
+            var currentNumberSpots = 0
             var currentDay = 0
 
 
             for (document in querySnapshot.documents) {
 
-                val stripe = document.toObject<Stripe>()
-                stripe?.let {
-                    if (stripe.availability) auxStripesAvailables.add(it)
+                val spot = document.toObject<Spot>()
+                spot?.let {
+                    if (spot.availability) auxSpotsAvailables.add(it)
                 }
             }
-            auxStripesAvailables.sortBy { "momentIni[0]" }
-            auxStripesAvailables.sortBy { "momentIni[1]" }
+            auxSpotsAvailables.sortBy { "momentIni[0]" }
+            auxSpotsAvailables.sortBy { "momentIni[1]" }
 
-            for (stripe in auxStripesAvailables) {
-                stripe.updateInternals()
-                if (stripe.duration < durationBook) continue
+            for (spot in auxSpotsAvailables) {
+                spot.updateInternals()
+                if (spot.duration < durationBook) continue
 
-                if (currentDay != stripe.dayInMonth) {
-                    auxDaysWithStripe.add(
+                if (currentDay != spot.dayInMonth) {
+                    auxDaysWithSpot.add(
                         Day(
-                            dayInMonth = stripe.dayInMonth,
-                            month = stripe.month,
+                            dayInMonth = spot.dayInMonth,
+                            month = spot.month,
                             weekDay = LocalDate.of(
                                 month.value.year,
                                 month.value.monthNumber,
-                                stripe.dayInMonth
+                                spot.dayInMonth
                             ).dayOfWeek.toString()
                         )
                     )
-                    currentDay = stripe.dayInMonth
-                    currentNumberStripes = 1
+                    currentDay = spot.dayInMonth
+                    currentNumberSpots = 1
                 }
-                if (currentNumberStripes < dayStripeLimit) {
+                if (currentNumberSpots < daySpotLimit) {
 
-                    finalStripesList.addAll(splitStripe(stripe, durationBook))
+                    finalSpotsList.addAll(splitSpot(spot, durationBook))
 
 
-                    currentNumberStripes++ //TODO modoficar con un if( splitstripe().size == 2) currentNumber+=2 else currentNumber++ en caso de que así se quiera
+                    currentNumberSpots++ //TODO modoficar con un if( splitSpot().size == 2) currentNumber+=2 else currentNumber++ en caso de que así se quiera
 
                 }
             }
@@ -109,45 +109,45 @@ class MontViewModel : ViewModel() {
 
             withContext(Dispatchers.Main) {
 
-                if (finalStripesList.isEmpty()) _someStripe.value = false
-                _daysAvailables.value = auxDaysWithStripe
-                _stripesAvailables.value = finalStripesList
+                if (finalSpotsList.isEmpty()) _someSpot.value = false
+                _daysAvailables.value = auxDaysWithSpot
+                _spotsAvailables.value = finalSpotsList
             }
         }
     }
 
-    fun splitStripe(Stripe: Stripe, durationBook: Int): MutableList<Stripe> {
-        Stripe.updateInternals() //TODO BORRAR
-        val splitedStripe = mutableListOf<Stripe>()
+    fun splitSpot(Spot: Spot, durationBook: Int): MutableList<Spot> {
+        Spot.updateInternals() //TODO BORRAR
+        val splitedSpot = mutableListOf<Spot>()
 
-        if (durationBook == Stripe.duration.toInt()) {
-            Stripe.availability = false
-            Stripe.splitedFrom = "${Stripe.dayInMonth}${Stripe.momentIni.get(0)}${Stripe.momentIni.get(1)}".toInt()
-            splitedStripe.add(Stripe)
-            return splitedStripe
+        if (durationBook == Spot.duration.toInt()) {
+            Spot.availability = false
+            Spot.splitedFrom = "${Spot.dayInMonth}${Spot.momentIni.get(0)}${Spot.momentIni.get(1)}".toInt()
+            splitedSpot.add(Spot)
+            return splitedSpot
         }
 
-        val auxStripe = Stripe.copy( )
-        val auxStripe2 = Stripe.copy()
-        auxStripe.momentFin = sumTime(
-            Stripe.momentIni,
+        val auxSpot = Spot.copy( )
+        val auxSpot2 = Spot.copy()
+        auxSpot.momentFin = sumTime(
+            Spot.momentIni,
             durationBook
         )
-        auxStripe.availability = false
-        auxStripe.bookedBy = "usuario de prueba"
-        auxStripe.updateInternals()
-        auxStripe.splitedFrom = "${Stripe.dayInMonth}${Stripe.momentIni.get(0)}${Stripe.momentIni.get(1)}".toInt()
+        auxSpot.availability = false
+        auxSpot.bookedBy = "usuario de prueba"
+        auxSpot.updateInternals()
+        auxSpot.splitedFrom = "${Spot.dayInMonth}${Spot.momentIni.get(0)}${Spot.momentIni.get(1)}".toInt()
 
-        splitedStripe.add(auxStripe)
-        auxStripe2.momentIni = minusTime(Stripe.momentFin, durationBook)
-        auxStripe2.availability = false
-        auxStripe2.bookedBy = "usuario de prueba"
-        auxStripe2.splitedFrom = "${Stripe.dayInMonth}${Stripe.momentIni.get(0)}${Stripe.momentIni.get(1)}".toInt()
+        splitedSpot.add(auxSpot)
+        auxSpot2.momentIni = minusTime(Spot.momentFin, durationBook)
+        auxSpot2.availability = false
+        auxSpot2.bookedBy = "usuario de prueba"
+        auxSpot2.splitedFrom = "${Spot.dayInMonth}${Spot.momentIni.get(0)}${Spot.momentIni.get(1)}".toInt()
 
-        auxStripe2.updateInternals()
-        splitedStripe.add(auxStripe2)
+        auxSpot2.updateInternals()
+        splitedSpot.add(auxSpot2)
 
-        return splitedStripe
+        return splitedSpot
     }
 
     private fun minusTime(momentFin: List<Int>, durationBook: Int): List<Int> {
@@ -165,36 +165,36 @@ class MontViewModel : ViewModel() {
 
     }
 
-    fun bookAppointment(selectedStripe: Stripe, day: Day, monthNumber: Int) {
+    fun bookAppointment(selectedSpot: Spot, day: Day, monthNumber: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            var stripeFatherDocuments = stripesCollectionOrdered.whereEqualTo( "month","${selectedStripe.month}" ).whereEqualTo("key",selectedStripe.splitedFrom).get().await()
-            for(stripeFatherDoc in stripeFatherDocuments){
-                var dbstripeFatherDoc = Firebase.firestore.collection("Stripes").document(stripeFatherDoc.id)
+            var spotFatherDocuments = spotsCollectionOrdered.whereEqualTo( "month","${selectedSpot.month}" ).whereEqualTo("key",selectedSpot.splitedFrom).get().await()
+            for(spotFatherDoc in spotFatherDocuments){
+                var dbSpotFatherDoc = Firebase.firestore.collection("Spots").document(spotFatherDoc.id)
                 try {
-                    var stripeFather = stripeFatherDoc.toObject<Stripe>()
+                    var spotFather = spotFatherDoc.toObject<Spot>()
 
-                    if(selectedStripe.duration == stripeFather.duration){
-                        selectedStripe.availability = false
-                        selectedStripe.bookedBy = "Usuario de prueba1"
-                        dbstripeFatherDoc.delete()
-                        stripesCollectionRef.add(selectedStripe)
+                    if(selectedSpot.duration == spotFather.duration){
+                        selectedSpot.availability = false
+                        selectedSpot.bookedBy = "Usuario de prueba1"
+                        dbSpotFatherDoc.delete()
+                        spotsCollectionRef.add(selectedSpot)
                     }else{
-                        selectedStripe.availability = false
-                        selectedStripe.bookedBy = "Usuario de prueba1"
+                        selectedSpot.availability = false
+                        selectedSpot.bookedBy = "Usuario de prueba1"
 
-                        dbstripeFatherDoc.delete()
-                        Firebase.firestore.collection("Stripes").add(selectedStripe)
-                        if(stripeFather.momentIni == selectedStripe.momentIni){
+                        dbSpotFatherDoc.delete()
+                        Firebase.firestore.collection("Spots").add(selectedSpot)
+                        if(spotFather.momentIni == selectedSpot.momentIni){
 
-                            stripeFather.momentIni = sumTime(stripeFather.momentIni,selectedStripe.duration.toInt())
-                            stripeFather.updateInternals()
-                            stripesCollectionRef.add(stripeFather)
+                            spotFather.momentIni = sumTime(spotFather.momentIni,selectedSpot.duration.toInt())
+                            spotFather.updateInternals()
+                            spotsCollectionRef.add(spotFather)
                         }
-                        if(stripeFather.momentFin == selectedStripe.momentFin){
+                        if(spotFather.momentFin == selectedSpot.momentFin){
 
-                                stripeFather.momentFin = minusTime(stripeFather.momentFin,selectedStripe.duration.toInt())
-                                stripeFather.updateInternals()
-                                stripesCollectionRef.add(stripeFather)
+                                spotFather.momentFin = minusTime(spotFather.momentFin,selectedSpot.duration.toInt())
+                                spotFather.updateInternals()
+                                spotsCollectionRef.add(spotFather)
 
                     }
                     }

@@ -1,13 +1,10 @@
 package com.ole.citastatto.Screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -19,8 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.ole.citastatto.MontViewModel
-import com.ole.citastatto.data.Day
-import com.ole.citastatto.data.Stripe
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -28,7 +23,7 @@ import java.time.format.FormatStyle
 
 
     @Composable
-    fun ShowNoStripe() {
+    fun ShowNoSpot() {
         Surface(
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
         ) {
@@ -37,15 +32,15 @@ import java.time.format.FormatStyle
     }
 
     @Composable
-    fun ShowStripe(monthViewModel: MontViewModel, navController: NavHostController) {
+    fun ShowSpot(monthViewModel: MontViewModel, navController: NavHostController) {
 
         val daysList = monthViewModel.daysAvailables.value
-        val stripesList = monthViewModel.stripesAvailables.value
+        val spotsList = monthViewModel.spotsAvailables.value
         androidx.compose.material.Surface(
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
         ) {
 
-            if(!monthViewModel.someStripe.value) ShowNoStripe()
+            if(!monthViewModel.someSpot.value) ShowNoSpot()
             LazyColumn(
             ) {
                 for (day in daysList) {
@@ -75,13 +70,13 @@ import java.time.format.FormatStyle
                                 .fillMaxWidth()
                                 .padding(10.dp)
                         ) {
-                            for (stripe in stripesList) {
-                                stripe.updateInternals()
-                                if(stripe.dayInMonth == day.dayInMonth){
+                            for (spot in spotsList) {
+                                spot.updateInternals()
+                                if(spot.dayInMonth == day.dayInMonth){
                                     OutlinedButton(
-                                        onClick = { monthViewModel.bookAppointment(stripe,day,monthViewModel.month.value.monthNumber)
+                                        onClick = { monthViewModel.bookAppointment(spot,day,monthViewModel.month.value.monthNumber)
                                             navController.popBackStack()}) {
-                                        Text(text = "$stripe")
+                                        Text(text = "$spot")
                                     }
                                 }
 

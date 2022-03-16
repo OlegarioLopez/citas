@@ -14,7 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ole.citastatto.Screens.MapGoogle
-import com.ole.citastatto.Screens.ShowStripe
+import com.ole.citastatto.Screens.ShowSpot
 import com.ole.citastatto.ui.theme.CitasTattoTheme
 
 
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavHost(navController = navController, startDestination = "HomeScreen") {
                         composable("HomeScreen") { HomeScreen(navController) }
-                        composable("Stripes") { ShowStripe(monthViewModel,navController) }
+                        composable("Spots") { ShowSpot(monthViewModel,navController) }
                         composable("map"){MapGoogle()}
                     }
                     //LottieExample()
@@ -52,8 +52,8 @@ class MainActivity : ComponentActivity() {
         {
             Button(onClick = {
                 monthViewModel.retrieveMonths()
-                monthViewModel.retrieveAvailableStripes(70)
-                navController.navigate("Stripes")
+                monthViewModel.retrieveAvailableSpots(70)
+                navController.navigate("Spots")
             }) {
                 Text(text = "Buscar cita")
             }

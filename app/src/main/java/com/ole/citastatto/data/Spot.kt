@@ -3,7 +3,7 @@ package com.ole.citastatto.data
 import java.time.Duration
 import java.time.LocalTime
 
-data class Stripe (
+data class Spot (
     val month: String = "",
     val dayInMonth: Int = 0,
     var availability: Boolean = true,
