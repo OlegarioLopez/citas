@@ -17,6 +17,7 @@ data class Stripe (
     var splitedFrom: Int = 0
 
     override fun toString(): String {
+        updateInternals()
         return "De $momentIniTime a $momentFinTime"
     }
 
