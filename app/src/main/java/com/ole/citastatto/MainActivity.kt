@@ -52,10 +52,10 @@ class MainActivity : ComponentActivity() {
         {
             Button(onClick = {
                 monthViewModel.retrieveMonths()
-                monthViewModel.retrieveAvailableSpots(70)
+                monthViewModel.retrieveAvailableSpots(50)
                 navController.navigate("Spots")
             }) {
-                Text(text = "Buscar cita")
+                Text(text = "Reservar cita")
             }
             Button(onClick = {
 
