@@ -40,7 +40,7 @@ class MontViewModel : ViewModel() {
 
     fun retrieveMonths() {
         viewModelScope.launch(Dispatchers.IO) {
-            val querySnapshot = monthCollectionRef.whereEqualTo("monthName", "APRIL").get().await()
+            val querySnapshot = monthCollectionRef.whereEqualTo("monthName", LocalDate.now().month.name).get().await()
             var month: Month? = Month()
             for (document in querySnapshot.documents) {
                 month = document.toObject<Month>()
@@ -60,7 +60,7 @@ class MontViewModel : ViewModel() {
 
             val auxDaysWithSpot: MutableList<Day> = mutableListOf()
             val auxSpotsAvailables: MutableList<Spot> = mutableListOf()
-            val querySnapshot = spotsCollectionOrdered.whereEqualTo("month", "APRIL").get().await()
+            val querySnapshot = spotsCollectionOrdered.whereEqualTo("month", LocalDate.now().month.name).get().await()
             val finalSpotsList: MutableList<Spot> = mutableListOf()
             val daySpotLimit = 5
             var currentNumberSpots = 0
@@ -208,8 +208,4 @@ class MontViewModel : ViewModel() {
 
 
     }
-
-   /* fun sayHello (){
-        Log.d("Hello" , " Hello")
-    }*/
 }
