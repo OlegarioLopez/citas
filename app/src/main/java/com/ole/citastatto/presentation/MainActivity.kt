@@ -1,4 +1,4 @@
-package com.ole.citastatto
+package com.ole.citastatto.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
