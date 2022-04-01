@@ -34,6 +34,8 @@ import java.time.format.FormatStyle
         val daysList = monthViewModel.daysAvailables.value
         val spotsList = monthViewModel.spotsAvailables.value
 
+         val today = LocalDate.now().dayOfMonth
+        daysList.filter { it.dayInMonth >=  today }
 
             if(!monthViewModel.someSpot.value) ShowNoSpot()
             LazyColumn(
