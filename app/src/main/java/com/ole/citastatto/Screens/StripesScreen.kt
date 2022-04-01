@@ -31,11 +31,11 @@ import java.time.format.FormatStyle
     @Composable
     fun ShowSpot(monthViewModel: MontViewModel, navController: NavHostController) {
 
-        val daysList = monthViewModel.daysAvailables.value
+        val today = LocalDate.now().dayOfMonth
+        var daysList = monthViewModel.daysAvailables.value.filter { it.dayInMonth >=  today }
         val spotsList = monthViewModel.spotsAvailables.value
 
-         val today = LocalDate.now().dayOfMonth
-        daysList.filter { it.dayInMonth >=  today }
+
 
             if(!monthViewModel.someSpot.value) ShowNoSpot()
             LazyColumn(
